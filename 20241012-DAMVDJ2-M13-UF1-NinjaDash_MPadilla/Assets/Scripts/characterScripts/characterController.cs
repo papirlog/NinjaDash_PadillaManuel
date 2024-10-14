@@ -51,7 +51,7 @@ public class characterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f);
+
     }
 
     private void FixedUpdate()
