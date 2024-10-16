@@ -22,12 +22,16 @@ public class characterController : MonoBehaviour
 
     //Mas variables y componentes
     private Rigidbody rb;
+    private Animator animator;
+
     private bool isGrounded = true;
     private bool isAlive = true;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
+
     }
 
     private void OnEnable()
@@ -80,6 +84,7 @@ public class characterController : MonoBehaviour
     //Funcion para saltar
     private void characterJump()
     {
+        animator.SetBool("Jumping", true);
         rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
         isGrounded = false;
     }
@@ -94,6 +99,7 @@ public class characterController : MonoBehaviour
             if(normal.y > 0.5f)
             {
                 rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+                animator.SetBool("Jumping", false);
                 isGrounded = true;
             }
             else
