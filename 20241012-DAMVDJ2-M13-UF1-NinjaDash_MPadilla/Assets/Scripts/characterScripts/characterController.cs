@@ -11,12 +11,6 @@ public class characterController : MonoBehaviour
     [SerializeField] private float jumpForce;
     [SerializeField] private float movementSpeed;
 
-    //Spawn o respawn point
-    [SerializeField] private Transform respawnPoint;
-
-    //Timer para respawnear
-    [SerializeField] private float respawnTime;
-
     //Definiendo gravedad
     [SerializeField] private float fallMultiplier;
 
@@ -25,7 +19,6 @@ public class characterController : MonoBehaviour
     private Animator animator;
 
     private bool isGrounded = true;
-    private bool isAlive = true;
 
     private void Awake()
     {
@@ -60,7 +53,7 @@ public class characterController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (isAlive)
+        if (characterRespawn.isAlive)
         {
             //Para avanzar automaticamente
             rb.velocity = new Vector3(movementSpeed, rb.velocity.y, rb.velocity.z);
@@ -75,7 +68,7 @@ public class characterController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        if(isGrounded && isAlive)
+        if(isGrounded && characterRespawn.isAlive)
         {
             characterJump();
         }
@@ -91,47 +84,18 @@ public class characterController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Ground"))
         {
             //Para verificar desde que lado esta colisionando
             Vector3 normal = collision.contacts[0].normal;
 
-            if(normal.y > 0.5f)
+            if (normal.y > 0.5f)
             {
                 rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
                 isGrounded = true;
                 animator.SetBool("Jumping", false);
             }
-            else
-            {
-                StartCoroutine(HandleRespawn());
-            }
-        }
-
-        if (collision.gameObject.CompareTag("Spikes") && isAlive)
-        {
-            StartCoroutine(HandleRespawn());
         }
     }
 
-
-    //Funcion para que una vez el personaje muera, tarde cierto tiempo es spawnear
-    private IEnumerator HandleRespawn()
-    {
-        isAlive = false;
-        rb.velocity = Vector3.zero;
-
-        yield return new WaitForSeconds(respawnTime);
-
-        characterRespawn();
-    }
-
-    //Funcion para respawnear al personaje
-    private void characterRespawn()
-    {
-        transform.position = respawnPoint.position;
-        isAlive = true;
-        isGrounded = true;
-        rb.velocity = Vector3.zero;
-    }
 }
