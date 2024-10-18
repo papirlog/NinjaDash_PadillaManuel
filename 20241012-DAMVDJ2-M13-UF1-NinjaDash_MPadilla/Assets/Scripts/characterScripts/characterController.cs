@@ -84,9 +84,9 @@ public class characterController : MonoBehaviour
     //Funcion para saltar
     private void characterJump()
     {
-        animator.SetBool("Jumping", true);
         rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
         isGrounded = false;
+        animator.SetBool("Jumping", true);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -99,8 +99,8 @@ public class characterController : MonoBehaviour
             if(normal.y > 0.5f)
             {
                 rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-                animator.SetBool("Jumping", false);
                 isGrounded = true;
+                animator.SetBool("Jumping", false);
             }
             else
             {
