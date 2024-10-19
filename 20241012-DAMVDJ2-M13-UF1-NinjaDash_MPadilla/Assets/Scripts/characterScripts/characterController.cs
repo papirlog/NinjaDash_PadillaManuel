@@ -8,17 +8,24 @@ public class characterController : MonoBehaviour
 
     //Defniendo variables
     [SerializeField] InputActionReference jump;
+    [SerializeField] InputActionReference parry;
     [SerializeField] private float jumpForce;
+    [SerializeField] private float extraJumpForce;
     [SerializeField] private float movementSpeed;
+    [SerializeField] private float parryDuration;
 
     //Definiendo gravedad
     [SerializeField] private float fallMultiplier;
 
     //Mas variables y componentes
+    [SerializeField] private GameObject parryBarrier;
+
     private Rigidbody rb;
     private Animator animator;
 
     private bool isGrounded = true;
+    private bool hasExtraJump = false;
+    private bool isParrying = false;
 
     private void Awake()
     {
@@ -30,13 +37,19 @@ public class characterController : MonoBehaviour
     private void OnEnable()
     {
         jump.action.performed += OnJump;
+        parry.action.performed += OnParry;
+
         jump.action.Enable();
+        parry.action.Enable();
     }
 
     private void OnDisable()
     {
         jump.action.performed -= OnJump;
+        parry.action.performed -= OnParry;
+
         jump.action.Disable();
+        parry.action.Disable();
     }
 
     // Start is called before the first frame update
@@ -66,11 +79,50 @@ public class characterController : MonoBehaviour
         }
     }
 
+    //Entrar en el estado de parry
+    private void OnParry(InputAction.CallbackContext context)
+    {
+        if (!isParrying && characterRespawn.isAlive)
+        {
+            isParrying = true;
+
+            if (isGrounded)
+            {
+                animator.SetBool("groundParry", true);
+            }
+            else
+            {
+                animator.SetBool("airParry", true);
+            }
+        }
+
+        parryBarrier.SetActive(true);
+        
+
+        StartCoroutine(parryTimerCount(parryDuration));
+    }
+
+    //Para desactivar el estado de parry
+    private IEnumerator parryTimerCount(float parryDuration)
+    {
+        yield return new WaitForSeconds(parryDuration);
+        isParrying = false;
+
+        parryBarrier.SetActive(false);
+
+        animator.SetBool("groundParry", false);
+        animator.SetBool("airParry", false);
+    }
+
     private void OnJump(InputAction.CallbackContext context)
     {
         if(isGrounded && characterRespawn.isAlive)
         {
             characterJump();
+        }
+        else if(!isGrounded && hasExtraJump)
+        {
+            PerformExtraJump();
         }
     }
 
@@ -80,6 +132,14 @@ public class characterController : MonoBehaviour
         rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
         isGrounded = false;
         animator.SetBool("Jumping", true);
+    }
+
+    //Salto extra
+    public void PerformExtraJump()
+    {
+        rb.velocity = new Vector3(rb.velocity.x, extraJumpForce, rb.velocity.z);
+        animator.SetBool("extraJumping", true);
+        hasExtraJump = false;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -96,6 +156,11 @@ public class characterController : MonoBehaviour
                 animator.SetBool("Jumping", false);
             }
         }
+    }
+
+    public void EnableExtraJump()
+    {
+        hasExtraJump = true;
     }
 
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class characterRespawn : MonoBehaviour
 {
@@ -13,10 +14,12 @@ public class characterRespawn : MonoBehaviour
     [SerializeField] private float respawnTime;
 
     private Rigidbody rb;
+    private Animator animator;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
     }
 
     // Start is called before the first frame update
@@ -40,15 +43,27 @@ public class characterRespawn : MonoBehaviour
 
             if (normal.y < 0.5f)
             {
-                StartCoroutine(HandleRespawn());
-                isAlive = false;
+                TriggerDeath();
             }
         }
 
-        if (collision.gameObject.CompareTag("Spikes") && isAlive)
+        if (collision.gameObject.CompareTag("Spikes"))
         {
-            StartCoroutine(HandleRespawn());
+            TriggerDeath();
+        }
+
+        if (collision.gameObject.CompareTag("Arrow"))
+        {
+            TriggerDeath();
+        }
+    }
+
+    private void TriggerDeath()
+    {
+        if(isAlive)
+        {
             isAlive = false;
+            StartCoroutine(HandleRespawn());
         }
     }
 
@@ -56,6 +71,8 @@ public class characterRespawn : MonoBehaviour
     //Funcion para que una vez el personaje muera, tarde cierto tiempo es spawnear
     private IEnumerator HandleRespawn()
     {
+        animator.SetBool("Die", true);
+
         rb.velocity = Vector3.zero;
 
         yield return new WaitForSeconds(respawnTime);
@@ -66,8 +83,7 @@ public class characterRespawn : MonoBehaviour
     //Funcion para respawnear al personaje
     private void functionCharacterRespawn()
     {
-        transform.position = respawnPoint.position;
         isAlive = true;
-        rb.velocity = Vector3.zero;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
