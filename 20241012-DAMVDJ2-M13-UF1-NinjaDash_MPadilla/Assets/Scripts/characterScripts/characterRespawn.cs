@@ -7,9 +7,6 @@ public class characterRespawn : MonoBehaviour
 {
     static public bool isAlive = true;
 
-    //Spawn o respawn point
-    [SerializeField] private Transform respawnPoint;
-
     //Timer para respawnear
     [SerializeField] private float respawnTime;
 

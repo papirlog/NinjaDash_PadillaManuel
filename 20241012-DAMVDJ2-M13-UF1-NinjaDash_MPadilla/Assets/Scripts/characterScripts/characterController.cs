@@ -19,6 +19,7 @@ public class characterController : MonoBehaviour
 
     //Mas variables y componentes
     [SerializeField] private GameObject parryBarrier;
+    [SerializeField] private GameObject extraJumpParticles;
 
     private Rigidbody rb;
     private Animator animator;
@@ -75,6 +76,15 @@ public class characterController : MonoBehaviour
             if (rb.velocity.y < 0)
             {
                 rb.velocity += Vector3.up * Physics.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+
+                Debug.Log(rb.velocity.y);
+
+                if(rb.velocity.y < -0.197)
+                {
+                    animator.SetBool("Jumping", false);
+                    animator.SetBool("extraJumping", false);
+                    animator.SetBool("Falling", true);
+                }
             }
         }
     }
@@ -123,6 +133,7 @@ public class characterController : MonoBehaviour
         else if(!isGrounded && hasExtraJump)
         {
             PerformExtraJump();
+            extraJumpParticles.SetActive(true);
         }
     }
 
@@ -153,7 +164,8 @@ public class characterController : MonoBehaviour
             {
                 rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
                 isGrounded = true;
-                animator.SetBool("Jumping", false);
+                animator.SetBool("Falling", false);
+                extraJumpParticles.SetActive(false);
             }
         }
     }
@@ -162,5 +174,4 @@ public class characterController : MonoBehaviour
     {
         hasExtraJump = true;
     }
-
 }
